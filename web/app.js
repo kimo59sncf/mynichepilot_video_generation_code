@@ -9,6 +9,7 @@ const state = {
   videos: [],
   status: null,
   selectedSeq: null,       // null = pipeline complet, sinon 1..5
+  selectedVariation: 'static', // static | llm | saas
   running: false,
   currentStage: null,
   renderedCount: 0,
@@ -503,6 +504,7 @@ async function launch(auto = false) {
     sequence: state.selectedSeq,
     skip_audio: skip,
     output_dir: outDir,
+    variation: state.selectedVariation,
   };
   try {
     const res = await fetch('/api/run', {
@@ -537,6 +539,7 @@ async function loadConfig() {
     $('#formatBadge').textContent = `9:16 · ${state.config.width}×${state.config.height}`;
     $('#fpsBadge').textContent = `${state.config.fps} FPS`;
     state.totalToRender = state.config.sequences.length;
+    if (state.config.content_provider) selectVariation(state.config.content_provider);
   }
 }
 
@@ -575,6 +578,23 @@ async function loadStatus() {
 }
 
 /* ------- liaison des événements ------- */
+function setVariationHint() {
+  const h = $('#variationHint');
+  if (!h) return;
+  const map = {
+    static: 'Le contenu sera identique à chaque génération.',
+    llm: 'Le script, les hooks et hashtags seront régénérés par OpenAI à chaque lancement.',
+    saas: 'Le script et les hashtags seront générés via Social-Script-Genius (/api/generate).',
+  };
+  h.textContent = map[state.selectedVariation] || map.static;
+}
+
+function selectVariation(v) {
+  state.selectedVariation = v;
+  $$('#variationChips .chip').forEach((x) => x.classList.toggle('active', x.dataset.var === v));
+  setVariationHint();
+}
+
 function bindActions() {
   $('#runBtn')?.addEventListener('click', () => launch(false));
   $('#stopBtn')?.addEventListener('click', stopPipeline);
@@ -583,6 +603,8 @@ function bindActions() {
     const txt = $('#skipAudioText');
     if (txt) txt.textContent = e.target.checked ? 'Oui — réutiliser l’audio existant' : 'Non — régénérer la voix off';
   });
+  $$('#variationChips .chip').forEach((chip) => chip.addEventListener('click', () => selectVariation(chip.dataset.var)));
+  setVariationHint();
 }
 
 /* ------- démarrage ------- */

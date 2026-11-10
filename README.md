@@ -197,6 +197,33 @@ launch_interface.bat      # Lanceur double-clic Windows
 
 ---
 
+## 🤖 Contenu Variable (IA) — scripts, hooks & hashtags
+
+Par défaut, le générateur produit **toujours le même script** (texte figé). Pour varier le contenu à chaque lancement, branchez-le sur un fournisseur IA :
+
+| Fournisseur | Description | Variables d'environnement |
+| :--- | :--- | :--- |
+| `static` | Texte fixe (défaut) | — |
+| `llm` | API Chat-Completions OpenAI-compatible | `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL` |
+| `saas` | API Social-Script-Genius (`POST /api/generate`) | `SAAS_API_URL`, `SAAS_PLATFORM`, `SAAS_DURATION` |
+
+### Utilisation
+
+```bash
+# Via l'interface VIP : onglet "Studio" → "Contenu — variation IA"
+# Via la CLI :
+python generate_video_mynichepilot.py --variation llm
+python generate_video_mynichepilot.py --variation saas
+```
+
+Le contenu généré remplace automatiquement les **titres**, la **voix off** (`voice_text`), les **sous-titres** et les **hashtags**. Il est mis en cache dans `output/_content_cache.json` (lu par `captions.py` pour afficher les bonnes légendes dans l'interface).
+
+En cas d'échec (pas de clé, réseau, JSON invalide), le générateur **replie silencieusement sur le contenu statique** : la production n'échoue jamais à cause du contenu.
+
+Voir `.env.example` pour la liste complète des variables.
+
+---
+
 ## 🎨 Charte Graphique & Palette Chromatique
 
 | Rôle | Teinte Hex | RGB | Utilisation |

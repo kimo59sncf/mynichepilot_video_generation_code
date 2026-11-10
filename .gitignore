@@ -17,6 +17,10 @@ venv/
 env/
 .conda/
 
+# --- Clés / configuration locale (ne jamais versionner) ---
+.env
+.env.local
+
 # --- Éditeurs / OS ---
 .vscode/
 .idea/

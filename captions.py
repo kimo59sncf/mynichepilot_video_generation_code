@@ -105,9 +105,52 @@ CAPTION_ORDER = [
 ]
 
 
+_SEQ_FILES = {
+    1: "sequence_1_hook.mp4",
+    2: "sequence_2_probleme_solution.mp4",
+    3: "sequence_3_demonstration_saas.mp4",
+    4: "sequence_4_transformation.mp4",
+    5: "sequence_5_call_to_action.mp4",
+}
+_MASTER_FILE = "MyNichePilot_Publicite_Officielle_9x16.mp4"
+
+
+def _dynamic_caption_map():
+    """Construit {filename: caption_info} depuis le cache de contenu IA (si présent)."""
+    try:
+        import content_generator
+        cache = content_generator.read_content_cache()
+    except Exception:
+        return {}
+    if not cache:
+        return {}
+    mapping = {}
+    campaign_ht = cache.get("campaign_hashtags") or []
+    for x in (cache.get("sequences") or []):
+        fn = _SEQ_FILES.get(x.get("id"))
+        if not fn:
+            continue
+        hashtags = x.get("hashtags") or campaign_ht
+        mapping[fn] = {
+            "title": x.get("title") or VIDEO_CAPTIONS.get(fn, {}).get("title", "Séquence"),
+            "caption": x.get("voice_text", ""),
+            "hashtags": hashtags,
+            "hashtags_str": " ".join(hashtags),
+        }
+    if campaign_ht:
+        titles = [x.get("title", "") for x in (cache.get("sequences") or []) if x.get("title")]
+        mapping[_MASTER_FILE] = {
+            "title": "Master Officiel — Publicité 9:16 (IA)",
+            "caption": "🎬 " + " · ".join(titles) if titles else VIDEO_CAPTIONS[_MASTER_FILE]["caption"],
+            "hashtags": campaign_ht,
+            "hashtags_str": " ".join(campaign_ht),
+        }
+    return mapping
+
+
 def get_caption_info(filename):
-    """Retourne (title, caption, hashtags, hashtags_str) pour un fichier vidéo."""
-    entry = VIDEO_CAPTIONS.get(filename)
+    """Retourne (title, caption, hashtags, hashtags_str) — priorité au contenu IA."""
+    entry = _dynamic_caption_map().get(filename) or VIDEO_CAPTIONS.get(filename)
     if not entry:
         return None
     hashtags = entry.get("hashtags", [])
@@ -115,7 +158,7 @@ def get_caption_info(filename):
         "title": entry["title"],
         "caption": entry["caption"],
         "hashtags": hashtags,
-        "hashtags_str": " ".join(hashtags),
+        "hashtags_str": entry.get("hashtags_str") or " ".join(hashtags),
     }
 
 

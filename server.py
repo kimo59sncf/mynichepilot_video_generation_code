@@ -150,6 +150,9 @@ def probe_dependencies():
         "generator_error": GEN_IMPORT_ERROR,
         "output_dir": OUTPUT_DIR,
         "work_dir": WORK_DIR,
+        "content_provider": os.environ.get("CONTENT_PROVIDER", "static").lower(),
+        "content_llm_configured": bool(os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_BASE_URL")),
+        "content_saas_url": os.environ.get("SAAS_API_URL", ""),
     }
 
 class PipelineManager:
@@ -307,6 +310,8 @@ def build_command(task):
         cmd += ["--sequence", str(seq)]
     if task.get("skip_audio"):
         cmd += ["--skip-audio"]
+    if task.get("variation") in ("static", "llm", "saas"):
+        cmd += ["--variation", task["variation"]]
     return cmd
 
 MIME_TYPES = {
@@ -533,6 +538,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 "width": WIDTH, "height": HEIGHT, "fps": FPS,
                 "palette": PALETTE, "sequences": seqs,
                 "total_duration": round(sum(s["duration"] for s in SEQUENCES), 2),
+                "content_provider": os.environ.get("CONTENT_PROVIDER", "static").lower(),
             })
             return
         if route == "status":
@@ -564,6 +570,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 "skip_audio": bool(body.get("skip_audio", False)),
                 "output_dir": (body.get("output_dir") or "").strip() or OUTPUT_DIR,
                 "work_dir": WORK_DIR,
+                "variation": body.get("variation") or os.environ.get("CONTENT_PROVIDER", "static"),
             }
             if seq not in (None, 1, 2, 3, 4, 5):
                 self._json({"ok": False, "error": "séquence invalide (1-5)", "status": manager.snapshot()["status"]}, 400)

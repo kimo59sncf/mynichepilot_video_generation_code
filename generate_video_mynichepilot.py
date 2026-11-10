@@ -329,6 +329,43 @@ def draw_subtitles_dynamic(draw, word_tuples, y_pos=1530):
         draw.text((cur_x, cur_y), w, font=font, fill=col)
         cur_x += w_px
 
+# =============================================================================
+# 4bis. SOUS-TITRES DYNAMIQUES (contenu IA variable)
+# =============================================================================
+_DYNAMIC_SUBTITLES = {}
+
+
+def set_dynamic_subtitles(seq_id, voice_text, duration):
+    """Découpe la voix off en fenêtres de sous-titres sur la durée (contenu IA)."""
+    if not voice_text:
+        _DYNAMIC_SUBTITLES.pop(seq_id, None)
+        return
+    words = voice_text.split()
+    n = 4
+    if len(words) <= n:
+        chunks = list(words)
+    else:
+        k = math.ceil(len(words) / n)
+        chunks = [" ".join(words[i:i + k]) for i in range(0, len(words), k)]
+    _DYNAMIC_SUBTITLES[seq_id] = {"duration": max(0.1, duration), "chunks": chunks}
+
+
+def dynamic_subtitles(seq_id, t, default_sub):
+    """Retourne les sous-titres dynamiques si dispo, sinon le défaut codé en dur."""
+    info = _DYNAMIC_SUBTITLES.get(seq_id)
+    if not info or not info["chunks"] or info["duration"] <= 0:
+        return default_sub
+    chunks = info["chunks"]
+    idx = min(len(chunks) - 1, int(t / (info["duration"] / len(chunks))))
+    words = chunks[idx].split()
+    half = max(1, len(words) // 2)
+    first = " ".join(words[:half])
+    second = " ".join(words[half:])
+    if second:
+        return [(first, C_WHITE), (second, C_GOLD)]
+    return [(first, C_GOLD)]
+
+
 def add_floating_particles(draw, t, count=25):
     """Particules dorées flottantes générées de manière déterministe."""
     np.random.seed(42)
@@ -398,6 +435,7 @@ def render_seq1_frame(t):
         sub = [("Trop d'idées confuses,", C_AMBER), ("zéro plan,", C_RED)]
     else:
         sub = [("et une vraie", C_WHITE), ("surcharge mentale !", C_GOLD)]
+    sub = dynamic_subtitles(1, t, sub)
     draw_subtitles_dynamic(draw, sub)
     return img
 
@@ -473,6 +511,7 @@ def render_seq2_frame(t):
         sub = [("Voici", C_WHITE), ("NichePilot,", C_GOLD), ("le coach IA", C_GOLD)]
     else:
         sub = [("d'exécution business", C_GOLD), ("qui change la donne.", C_EMERALD)]
+    sub = dynamic_subtitles(2, t, sub)
     draw_subtitles_dynamic(draw, sub)
     return img
 
@@ -563,6 +602,7 @@ def render_seq3_frame(t):
         sub = [("Opportunités", C_WHITE), ("rentables détectées,", C_GOLD)]
     else:
         sub = [("et une roadmap", C_WHITE), ("sur 16 semaines !", C_GOLD)]
+    sub = dynamic_subtitles(3, t, sub)
     draw_subtitles_dynamic(draw, sub)
     return img
 
@@ -616,6 +656,7 @@ def render_seq4_frame(t):
         sub = [("Ta niche rentable", C_WHITE), ("est validée,", C_EMERALD)]
     else:
         sub = [("et ton offre", C_WHITE), ("prête à vendre !", C_GOLD)]
+    sub = dynamic_subtitles(4, t, sub)
     draw_subtitles_dynamic(draw, sub)
     return img
 
@@ -685,6 +726,7 @@ def render_seq5_frame(t):
         sub = [("Rendez-vous sur", C_WHITE), ("mynichepilot.com,", C_GOLD)]
     else:
         sub = [("Fais ton", C_WHITE), ("diagnostic gratuit", C_EMERALD), ("dès maintenant !", C_GOLD)]
+    sub = dynamic_subtitles(5, t, sub)
     draw_subtitles_dynamic(draw, sub)
     return img
 
@@ -1102,7 +1144,45 @@ def parse_args():
     parser.add_argument("--work-dir", default="/tmp/mynichepilot_work", help="Répertoire de travail intermédiaire")
     parser.add_argument("--skip-audio", action="store_true", help="Réutiliser les fichiers audio déjà générés")
     parser.add_argument("--sequence", type=int, choices=[1, 2, 3, 4, 5], help="Générer uniquement la séquence indiquée")
+    parser.add_argument("--variation", default=None, choices=["static", "llm", "saas"],
+                        help="Fournisseur de contenu variable (défaut: env CONTENT_PROVIDER ou static)")
     return parser.parse_args()
+
+def apply_content_variation(args):
+    """Régénère titres, voix off et sous-titres via l'IA (LLM/SaaS) si configuré."""
+    variation = (getattr(args, "variation", None) or os.environ.get("CONTENT_PROVIDER", "static")).lower()
+    if variation == "static":
+        return
+    try:
+        import content_generator as cg
+    except Exception as exc:
+        print(f"  ⚠ Module content_generator indisponible : {exc}")
+        return
+    cg.CONFIG["provider"] = variation
+    seqs = [{"id": s["id"], "name": s["name"], "title": s["title"],
+             "duration": s["duration"], "voice_text": s["voice_text"]} for s in SEQUENCES_CONFIG]
+    campaign = cg.generate_campaign(seqs)
+    if not campaign:
+        print(f"  ⚠ Contenu IA ({variation}) indisponible — script par défaut conservé.")
+        return
+    seq_map = {}
+    for x in (campaign.get("sequences") or []):
+        seq_map[x.get("id")] = x
+        seq_map[str(x.get("id"))] = x
+    changed = 0
+    for s in SEQUENCES_CONFIG:
+        c = seq_map.get(s["id"])
+        if not c:
+            continue
+        if c.get("voice_text"):
+            s["voice_text"] = c["voice_text"]
+            set_dynamic_subtitles(s["id"], c["voice_text"], s["duration"])
+            changed += 1
+        if c.get("title"):
+            s["title"] = c["title"]
+    cg.write_content_cache(campaign)
+    print(f"  ✓ Contenu IA appliqué ({variation}) : {changed}/5 séquences variées.")
+
 
 def main():
     args = parse_args()
@@ -1119,7 +1199,10 @@ def main():
     print(f"  • Format vidéo : 9:16 vertical (1080x1920)")
     print(f"  • Durée totale cible : 44.30 secondes (5 séquences)")
     print("=======================================================================")
-    
+
+    # 0. Contenu variable (IA : LLM / SaaS) — optionnel, repli silencieux
+    apply_content_variation(args)
+
     # 1. Initialisation des polices et assets
     print("\n--- Étape 1 : Initialisation des assets et de la charte ---")
     init_assets()
