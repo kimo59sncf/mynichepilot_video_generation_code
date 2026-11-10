@@ -1,0 +1,15 @@
+# Dépendances Python pour la génération vidéo autonome MyNichePilot
+# Compatible Python 3.10, 3.11, 3.12+ (Linux, macOS, Windows)
+
+# Voix off neuronale haute fidélité Microsoft Edge
+edge-tts>=6.1.0
+
+# Traitement et composition d'images
+pillow>=10.0.0
+
+# Traitement matriciel et vision par ordinateur (version sans dépendances graphiques X11)
+opencv-python-headless>=4.8.0
+numpy>=1.24.0
+
+# Traitement du signal audio (synthèse musicale, SFX et I/O WAV)
+scipy>=1.11.0

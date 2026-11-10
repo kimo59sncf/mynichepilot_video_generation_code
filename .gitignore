@@ -1,0 +1,28 @@
+# =============================================================================
+# MyNichePilot — Fichiers ignorés par Git
+# =============================================================================
+
+# --- Vidéos et audio générés (lourds, reproductibles via le pipeline) ---
+output/
+.work/
+
+# --- Cache Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# --- Environnements virtuels ---
+venv/
+.venv/
+env/
+.conda/
+
+# --- Éditeurs / OS ---
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# --- Logs & temporaires ---
+*.log
+*.tmp

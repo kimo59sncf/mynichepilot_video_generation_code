@@ -1,0 +1,21 @@
+# Normalisation des fins de ligne (cohérence Linux/macOS/Windows)
+* text=auto
+
+# Scripts Unix : toujours LF
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.svg text eol=lf
+*.json text eol=lf
+
+# Scripts Windows : CRLF
+*.bat text eol=crlf
+
+# Binaires : ne pas toucher
+*.ttf binary
+*.png binary
+*.mp4 binary
+*.wav binary

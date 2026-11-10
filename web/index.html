@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyNichePilot — Studio VIP</title>
+  <meta name="description" content="Interface de pilotage VIP du générateur vidéo publicitaire MyNichePilot." />
+  <link rel="icon" type="image/svg+xml" href="/assets/mynichepilot-favicon.svg" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" width="44" height="44" aria-hidden="true">
+        <defs>
+          <linearGradient id="compGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f59e0b"/>
+            <stop offset="1" stop-color="#f97316"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#compGrad)"/>
+        <circle cx="32" cy="32" r="16" fill="none" stroke="#fff" stroke-width="2.4"/>
+        <path d="M32 10 L36 32 L32 54 L28 32 Z" fill="#fff"/>
+        <circle cx="32" cy="32" r="3.2" fill="#fff"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">MyNichePilot</span>
+        <span class="brand-sub">Studio VIP</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-section="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6v-9h-6v9zm0-16v5h6V4h-6z"/></svg>
+        Tableau de bord
+      </button>
+      <button class="nav-item" data-section="studio">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Studio de production
+      </button>
+      <button class="nav-item" data-section="sequences">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Séquences
+      </button>
+      <button class="nav-item" data-section="outputs">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Sorties vidéo
+      </button>
+      <button class="nav-item" data-section="system">
+        <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Système
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="server-dot" id="serverDot"></span>
+      <span class="server-label" id="serverLabel">Connexion…</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="pageTitle">Tableau de bord</h1>
+        <p id="pageSubtitle">Production vidéo publicitaire 9:16</p>
+      </div>
+      <div class="topbar-badges">
+        <span class="badge badge-format" id="formatBadge">9:16 · 1080×1920</span>
+        <span class="badge badge-fps" id="fpsBadge">30 FPS</span>
+        <span class="badge badge-live" id="liveBadge">● En attente</span>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="section is-active" id="section-dashboard">
+      <div class="hero panel">
+        <div class="hero-copy">
+          <span class="eyebrow">Suite complète de génération</span>
+          <h2>Toute ta publicité vidéo,<br/><em>pilotée depuis un seul écran.</em></h2>
+          <p>Voix off neuronale, sound design procédural et rendu 1080×1920 en streaming FFmpeg — 44,3 secondes produites de façon 100 % autonome.</p>
+          <div class="hero-actions">
+            <button class="btn btn-gold" id="heroLaunch">Lancer la production</button>
+            <button class="btn btn-ghost" data-goto="sequences">Voir les séquences</button>
+          </div>
+        </div>
+        <div class="hero-orbit">
+          <div class="orbit-ring"></div>
+          <svg class="orbit-compass" viewBox="0 0 64 64" width="150" height="150" aria-hidden="true">
+            <defs><linearGradient id="compGrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fcd34d"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs>
+            <circle cx="32" cy="32" r="28" fill="none" stroke="url(#compGrad2)" stroke-width="1.4" opacity="0.5"/>
+            <circle cx="32" cy="32" r="20" fill="none" stroke="url(#compGrad2)" stroke-width="1.6" opacity="0.7"/>
+            <path d="M32 8 L38 32 L32 56 L26 32 Z" fill="url(#compGrad2)"/>
+            <circle cx="32" cy="32" r="3.4" fill="#fcd34d"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="split">
+        <div class="panel">
+          <div class="panel-head"><h3>Pipeline de production</h3><span class="panel-tag">6 étapes</span></div>
+          <ol class="pipeline" id="pipelineList"></ol>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Charte graphique</h3><span class="panel-tag">Nuit Cosmique</span></div>
+          <div class="palette" id="palette"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUDIO -->
+    <section class="section" id="section-studio">
+      <div class="panel">
+        <div class="panel-head"><h3>Configuration de la production</h3><span class="panel-tag">Pipeline 9:16</span></div>
+        <div class="control-row">
+          <div class="field">
+            <label class="field-label">Portée du rendu</label>
+            <div class="chips" id="seqChips"></div>
+          </div>
+        </div>
+        <div class="control-row control-row-2">
+          <div class="field">
+            <label class="field-label">Réutiliser l'audio existant</label>
+            <label class="switch">
+              <input type="checkbox" id="skipAudio" />
+              <span class="slider"></span>
+              <span class="switch-text" id="skipAudioText">Non — régénérer la voix off</span>
+            </label>
+          </div>
+          <div class="field">
+            <label class="field-label">Dossier de sortie</label>
+            <input class="input" id="outputDir" type="text" placeholder="output/" spellcheck="false" />
+          </div>
+        </div>
+        <div class="control-actions">
+          <button class="btn btn-gold" id="runBtn">Lancer la production</button>
+          <button class="btn btn-danger" id="stopBtn" disabled>Arrêter</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Progression</h3><span class="panel-tag" id="stageTag">En attente</span></div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="progress-meta">
+          <div class="meta-item"><span class="meta-label">État</span><span class="meta-value" id="metaState">—</span></div>
+          <div class="meta-item"><span class="meta-label">Temps écoulé</span><span class="meta-value" id="metaElapsed">—</span></div>
+          <div class="meta-item"><span class="meta-label">Séquence courante</span><span class="meta-value" id="metaSeq">—</span></div>
+        </div>
+      </div>
+
+      <div class="panel console-panel">
+        <div class="panel-head">
+          <h3>Console temps réel</h3>
+          <div class="console-tools">
+            <span class="panel-tag" id="logCount">0 ligne</span>
+            <button class="btn btn-mini" id="clearLogBtn">Effacer</button>
+          </div>
+        </div>
+        <div class="console" id="console"><div class="console-line dim">En attente du lancement de la production…</div></div>
+      </div>
+    </section>
+
+    <!-- SEQUENCES -->
+    <section class="section" id="section-sequences">
+      <div class="section-intro">
+        <h2>Les 5 séquences narratives</h2>
+        <p>Chaque séquence combine voix off, sous-titres dynamiques et sound design dédié.</p>
+      </div>
+      <div class="seq-grid" id="seqGrid"></div>
+    </section>
+
+    <!-- OUTPUTS -->
+    <section class="section" id="section-outputs">
+      <div class="section-intro">
+        <h2>Sorties vidéo</h2>
+        <p>Les fichiers MP4 générés apparaissent ici dès qu'ils sont prêts.</p>
+      </div>
+      <div class="videos-grid" id="videosGrid"></div>
+    </section>
+
+    <!-- SYSTEM -->
+    <section class="section" id="section-system">
+      <div class="section-intro">
+        <h2>État du système</h2>
+        <p>Dépendances, encodeur et environnement d'exécution.</p>
+      </div>
+      <div class="system-grid" id="systemGrid"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
