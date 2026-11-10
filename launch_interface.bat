@@ -4,7 +4,7 @@ chcp 65001 >nul
 title MyNichePilot - Studio VIP
 cd /d "%~dp0"
 
-set "PORT=8000"
+set "PORT=8080"
 if not "%~1"=="" set "PORT=%~1"
 
 echo ============================================================

@@ -651,7 +651,7 @@ def run_server(host, port):
 def main():
     parser = argparse.ArgumentParser(description="MyNichePilot — Interface VIP locale")
     parser.add_argument("--host", default="127.0.0.1", help="Adresse d'écoute (défaut 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=8000, help="Port d'écoute (défaut 8000)")
+    parser.add_argument("--port", type=int, default=8080, help="Port d'écoute (défaut 8080)")
     args = parser.parse_args()
 
     ff = find_ffmpeg()

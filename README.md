@@ -164,15 +164,15 @@ Double-cliquez simplement sur :
 launch_interface.bat
 ```
 
-Le navigateur s'ouvre automatiquement sur `http://127.0.0.1:8000`.
+Le navigateur s'ouvre automatiquement sur `http://127.0.0.1:8080`.
 
 ### Lancement manuel
 
 ```bash
-python server.py --host 127.0.0.1 --port 8000
+python server.py --host 127.0.0.1 --port 8080
 ```
 
-Puis ouvrez [http://127.0.0.1:8000](http://127.0.0.1:8000).
+Puis ouvrez [http://127.0.0.1:8080](http://127.0.0.1:8080).
 
 ### Fichiers ajoutés
 
