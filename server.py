@@ -83,6 +83,12 @@ try:
 except Exception:
     _captions_mod = None
 
+# Chargement du .env (clés LLM/SaaS) via content_generator (déclenche _load_dotenv)
+try:
+    import content_generator as _content_gen  # noqa: F401
+except Exception:
+    _content_gen = None
+
 
 def find_ffmpeg():
     """Localise FFmpeg : PATH, WinGet (Gyan), répertoires communs, recherche récursive."""

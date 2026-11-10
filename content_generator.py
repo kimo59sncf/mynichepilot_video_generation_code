@@ -32,6 +32,35 @@ def _env(name, default=""):
     return (os.environ.get(name) or default).strip()
 
 
+def _load_dotenv(path=None):
+    """Charge un fichier `.env` simple (KEY=VALUE) — aucune dépendance externe.
+
+    Ne remplace jamais une variable déjà présente dans l'environnement réel.
+    """
+    path = path or os.path.join(BASE_DIR, ".env")
+    if not os.path.isfile(path):
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                value = value.strip()
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                    value = value[1:-1]
+                if key and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        pass
+
+
+# Charge `.env` avant de construire la configuration (clés LLM/SaaS)
+_load_dotenv()
+
+
 # -----------------------------------------------------------------------------
 # Configuration (variables d'environnement)
 # -----------------------------------------------------------------------------
@@ -42,6 +71,7 @@ CONFIG = {
     "openai_api_key": _env("OPENAI_API_KEY") or _env("AI_INTEGRATIONS_OPENAI_API_KEY"),
     "openai_base_url": _env("OPENAI_BASE_URL") or _env("AI_INTEGRATIONS_OPENAI_BASE_URL"),
     "openai_model": _env("OPENAI_MODEL", "gpt-4o-mini"),
+    "openai_temperature": _env("OPENAI_TEMPERATURE", ""),
     "saas_api_url": _env("SAAS_API_URL", "http://localhost:5001/api"),
     "saas_platform": _env("SAAS_PLATFORM", "tiktok"),
     "saas_duration": _env("SAAS_DURATION", "1min"),
@@ -88,9 +118,17 @@ def _extract_json(text):
 def _post_json(url, payload, headers, timeout=60):
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, method="POST", headers=headers)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        body = resp.read().decode("utf-8", errors="replace")
-        return json.loads(body)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            return json.loads(body)
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            pass
+        raise urllib.error.URLError(f"HTTP {e.code}: {detail[:400]}") from e
 
 def _llm_generate(sequences):
     """Fournisseur LLM : un seul appel renvoie les 5 séquences variées."""
@@ -113,12 +151,18 @@ def _llm_generate(sequences):
 
     payload = {
         "model": model,
-        "temperature": 0.9,
         "messages": [
             {"role": "system", "content": _SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
     }
+    # `temperature` est omis par défaut : les modèles de raisonnement (série o/gpt-5)
+    # le rejettent (400). Activez-le via OPENAI_TEMPERATURE si votre modèle le supporte.
+    if CONFIG["openai_temperature"]:
+        try:
+            payload["temperature"] = float(CONFIG["openai_temperature"])
+        except Exception:
+            pass
     url = base + "/chat/completions"
     headers = {
         "Content-Type": "application/json",

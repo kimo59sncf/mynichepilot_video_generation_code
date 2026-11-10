@@ -1150,13 +1150,15 @@ def parse_args():
 
 def apply_content_variation(args):
     """Régénère titres, voix off et sous-titres via l'IA (LLM/SaaS) si configuré."""
-    variation = (getattr(args, "variation", None) or os.environ.get("CONTENT_PROVIDER", "static")).lower()
-    if variation == "static":
-        return
+    # Importe content_generator en premier : cela charge le fichier .env
+    # (OPENAI_API_KEY + CONTENT_PROVIDER) dans os.environ avant la lecture ci-dessous.
     try:
         import content_generator as cg
     except Exception as exc:
         print(f"  ⚠ Module content_generator indisponible : {exc}")
+        return
+    variation = (getattr(args, "variation", None) or os.environ.get("CONTENT_PROVIDER", "static")).lower()
+    if variation == "static":
         return
     cg.CONFIG["provider"] = variation
     seqs = [{"id": s["id"], "name": s["name"], "title": s["title"],
